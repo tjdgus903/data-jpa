@@ -1,6 +1,8 @@
 package study.data_jpa.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import study.data_jpa.entity.Member;
 
 import java.util.List;
@@ -22,4 +24,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     // 파라미터를 안넣으면 전체 조회
     Member findTop3HelloBy();
+
+    // Query 에 :username  이런식으로 파라미터값이 있으면 매개변수로 @Param 을 붙혀서 사용해야됨
+    // JPQL 에서 repository 를 선언할 때 상단에 Query 를 붙혀서 사용하며 실무에서 많이 씀(복잡한 쿼리를 사용할 때)
+    // 애플리케이션 로딩 시점에서 Query들을 모두 파싱해버림
+    // 파싱하는 시점에서 문법 오류가 발생하면 그런 오류들도 모두 잡아버림
+    @Query("select m from Member m where m.username = :username and m.age = :age")
+    List<Member> findUser(@Param("username") String username, @Param("age") int age);
 }
