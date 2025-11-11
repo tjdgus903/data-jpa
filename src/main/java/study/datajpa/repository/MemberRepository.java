@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 
+import java.util.Collection;
 import java.util.List;
 
 // JpaRepository 안에 많은 함수들을 포함하고 있기 때문에
@@ -40,4 +41,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     // 선언하여 사용할 DTO 를 Query 에서 new study.datajpa.dto.MemberDto 이런 식으로 사용하면 됨
     @Query("select new study.datajpa.dto.MemberDto(m.id, m.username, t.name) from Member m join m.team t")
     List<MemberDto> findMemberDto();
+
+    // @Param 을 통해 Query에 바인딩
+    @Query("select m from Member m where m.username in :names")
+    List<Member> findByNames(@Param("names") Collection<String> names);
 }
