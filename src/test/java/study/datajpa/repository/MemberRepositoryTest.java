@@ -1,18 +1,17 @@
-package study.data_jpa.repository;
+package study.datajpa.repository;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
-import study.data_jpa.entity.Member;
+import study.datajpa.dto.MemberDto;
+import study.datajpa.entity.Member;
+import study.datajpa.entity.Team;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.as;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -22,6 +21,7 @@ class MemberRepositoryTest {
     // spring jpa 가 구현클래스를 만들어서 객체에 꽂아버림
     // 구현체를 개발자가 아닌 spring jpa 가 만들어서 여기에 injection을 해버림
     @Autowired MemberRepository memberRepository;
+    @Autowired TeamRepository teamRepository;
 
     @Test
     public void testMember(){
@@ -86,13 +86,30 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void testQuery(){
+    public void findUserNameList(){
         Member m1 = new Member("AAA",10);
-        Member m2 = new Member("AAA",20);
+        Member m2 = new Member("BBB",20);
         memberRepository.save(m1);
         memberRepository.save(m2);
 
-        List<Member> result = memberRepository.findUser("AAA",10);
-        assertThat(result.get(0)).isEqualTo(m1);
+        List<String> usernameList = memberRepository.findUsernameList();
+        for (String s : usernameList) {
+            System.out.println("s = "+s);
+        }
+    }
+
+    @Test
+    public void findMemberDto(){
+        Team team = new Team("teamA");
+        teamRepository.save(team);
+
+        Member m1 = new Member("AAA",10);
+        m1.setTeam(team);
+        memberRepository.save(m1);
+
+        List<MemberDto> usernameList = memberRepository.findMemberDto();
+        for (MemberDto dto : usernameList) {
+            System.out.println("dto = "+dto);
+        }
     }
 }

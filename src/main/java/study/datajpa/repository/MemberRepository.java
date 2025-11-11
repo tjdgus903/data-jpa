@@ -1,9 +1,10 @@
-package study.data_jpa.repository;
+package study.datajpa.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import study.data_jpa.entity.Member;
+import study.datajpa.dto.MemberDto;
+import study.datajpa.entity.Member;
 
 import java.util.List;
 
@@ -31,4 +32,12 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     // 파싱하는 시점에서 문법 오류가 발생하면 그런 오류들도 모두 잡아버림
     @Query("select m from Member m where m.username = :username and m.age = :age")
     List<Member> findUser(@Param("username") String username, @Param("age") int age);
+
+    @Query("select m.username from Member m")
+    List<String> findUsernameList();
+
+    // DTO 를 선언해서 JPQL 사용하는 방법
+    // 선언하여 사용할 DTO 를 Query 에서 new study.datajpa.dto.MemberDto 이런 식으로 사용하면 됨
+    @Query("select new study.datajpa.dto.MemberDto(m.id, m.username, t.name) from Member m join m.team t")
+    List<MemberDto> findMemberDto();
 }

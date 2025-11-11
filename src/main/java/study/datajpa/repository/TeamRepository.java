@@ -1,7 +1,7 @@
-package study.data_jpa.repository;
+package study.datajpa.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import study.data_jpa.entity.Team;
+import study.datajpa.entity.Team;
 
 
 // JpaRepository 를 extends 해주면 @Repository 를 선언 안해줘도 프록시 객체로 인식함
