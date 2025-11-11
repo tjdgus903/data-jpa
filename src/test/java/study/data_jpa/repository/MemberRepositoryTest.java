@@ -16,10 +16,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @Rollback(false)
 class MemberRepositoryTest {
 
+    // spring jpa 가 구현클래스를 만들어서 객체에 꽂아버림
+    // 구현체를 개발자가 아닌 spring jpa 가 만들어서 여기에 injection을 해버림
     @Autowired MemberRepository memberRepository;
 
     @Test
     public void testMember(){
+        System.out.println("memberRepository = " + memberRepository.getClass());
         Member member = new Member("memberA");
         // interface 만 만들어두면 나머지는 springjpa가 다 넣어줌(save, findById . . .)
         Member savedMember = memberRepository.save(member);
