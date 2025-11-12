@@ -8,6 +8,7 @@ import study.datajpa.entity.Member;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 // JpaRepository 안에 많은 함수들을 포함하고 있기 때문에
 // Repository 선언 시 extends로 가져와야됨
@@ -45,4 +46,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     // @Param 을 통해 Query에 바인딩
     @Query("select m from Member m where m.username in :names")
     List<Member> findByNames(@Param("names") Collection<String> names);
+
+    // JPA 는 다양한 반환타입을 가질 수 있다.
+    List<Member> findListByUsername(String username);
+
+    // Member type 에서는 값이 없을 경우 null 을 내보내지만
+    Member findMemberByUsername(String username);
+
+    // Optional 을 주면 값이 없어도 null 이 아닌 Optional.empty 을 내보냄
+    Optional<Member> findOptionalByUsername(String username);
 }

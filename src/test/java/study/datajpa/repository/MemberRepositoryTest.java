@@ -1,5 +1,6 @@
 package study.datajpa.repository;
 
+import jdk.swing.interop.SwingInterOpUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,9 +10,11 @@ import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
 
+import javax.swing.text.html.Option;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -126,5 +129,29 @@ class MemberRepositoryTest {
         for (Member member : result) {
             System.out.println("member = "+member);
         }
+    }
+
+    @Test
+    public void returnType(){
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("AAA", 20);
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+
+        List<Member> aaa = memberRepository.findListByUsername("AAA");
+        Member bbb = memberRepository.findMemberByUsername("BBB");
+        System.out.println("bbb : "+bbb);
+        Optional<Member> ccc = memberRepository.findOptionalByUsername("AAA");
+        System.out.println("ccc : "+ccc);
+
+        // jpa 에서 List 의 경우 값이 맞지 않더라도 null 을 내보내지 않음(값이 없으면 0)
+        List<Member> ddd = memberRepository.findListByUsername("asdf");
+        System.out.println("ddd : "+ddd.size());
+
+        Member eee = memberRepository.findMemberByUsername("asdf");
+        System.out.println("eee : "+eee);
+
+        Optional<Member> fff = memberRepository.findOptionalByUsername("asdf");
+        System.out.println("fff : "+fff);
     }
 }
