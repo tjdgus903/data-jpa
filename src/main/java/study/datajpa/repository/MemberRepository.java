@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import study.datajpa.dto.MemberDto;
@@ -69,4 +70,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     //Slice<Member> findByAge(int age, Pageable pageble);
     // List 로도 페이징을 사용할 수 있지만 다른 paging 기능은 사용 못함
     //List<Member> findByAge(int age, Pageable pageble);
+
+    // Modifying 을 호출해야 기본 jpa 의 executeUpdate 같이 업데이트를 수행함(최신버전에는 없어도 에러안나는데 확인 필요)
+    // jpa 는 영속성 컨텍스트를 사용하는데 bulk 연산은 그걸 무시하고 db에 update를 해버림
+    // Modifying 에 clear 옵션 true 로 넣으면 바로 영속성컨텍스트 clear 해버림
+    @Modifying(clearAutomatically = true)
+    @Query("update Member m set m.age = m.age + 1 where m.age >= :age")
+    int bulkAgePlus(@Param("age") int age);
 }

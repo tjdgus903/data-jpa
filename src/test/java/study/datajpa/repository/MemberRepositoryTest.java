@@ -1,5 +1,7 @@
 package study.datajpa.repository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jdk.swing.interop.SwingInterOpUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,8 @@ class MemberRepositoryTest {
     // 구현체를 개발자가 아닌 spring jpa 가 만들어서 여기에 injection을 해버림
     @Autowired MemberRepository memberRepository;
     @Autowired TeamRepository teamRepository;
+    @PersistenceContext
+    EntityManager em;
 
     @Test
     public void testMember(){
@@ -229,4 +233,31 @@ class MemberRepositoryTest {
         assertThat(page.isFirst()).isTrue();
         assertThat(page.hasNext()).isTrue();
     }*/
+
+    @Test
+    public void bulkUpdate(){
+        // given
+        memberRepository.save(new Member("member1",10));
+        memberRepository.save(new Member("member2",13));
+        memberRepository.save(new Member("member3",19));
+        memberRepository.save(new Member("member4",12));
+        memberRepository.save(new Member("member5",31));
+        memberRepository.save(new Member("member6",22));
+        memberRepository.save(new Member("member7",40));
+
+        // when
+        // bulk update 는 바로 db에 업데이트를 해버리기 때문에
+        // 영속성컨텍스트에 남아있는 데이터와 수치가 다를 수 있음
+        // 그렇기 때문에 bulk 연산을 한 뒤에는 영속성 컨텍스트를 초기화 해야됨
+        int resultCount = memberRepository.bulkAgePlus(20);
+        //em.flush();
+        //em.clear();
+
+        List<Member> result = memberRepository.findListByUsername("member7");
+        Member member7 = result.get(0);
+        System.out.println("member7 : "+member7);
+
+        // then
+        assertThat(resultCount).isEqualTo(3);
+    }
 }
