@@ -4,6 +4,10 @@ import jdk.swing.interop.SwingInterOpUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
@@ -154,4 +158,75 @@ class MemberRepositoryTest {
         Optional<Member> fff = memberRepository.findOptionalByUsername("asdf");
         System.out.println("fff : "+fff);
     }
+
+    @Test
+    public void paging(){
+        // given
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 10));
+        memberRepository.save(new Member("member3", 10));
+        memberRepository.save(new Member("member4", 10));
+        memberRepository.save(new Member("member5", 10));
+
+        int age = 10;
+        // 0 페이지에서 3개 가져와, Sort 정렬은 DESC/ASC 차순으로 "username" 기준 정렬
+        PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.ASC, "username"));
+
+        // when
+        // 이거는 Controller 에서 바로 노출시키면 큰일남..
+        // Entity를 외부에 바로 노출시키면 안되기 때문에
+        // Application 안에 숨기고 dto로 반환시켜서 넘겨야됨
+        Page<Member> page = memberRepository.findByAge(age, pageRequest);
+
+        // map 이란 내부의 데이터를 다른 값으로 반환해서 뽑는 함수
+        // 외부에 데이터를 뽑을때는 이렇게 dto로 반환해서 사용해서 뽑아야됨(이건 나중에 다시 보기)
+        Page<MemberDto> toMap = page.map(m -> new MemberDto(m.getId(), m.getUsername(), null));
+
+        // then
+        List<Member> content = page.getContent();
+        long totalElements = page.getTotalElements();
+        for (Member member : content) {
+            System.out.println("member : "+member);
+        }
+        System.out.println("total : "+totalElements);
+
+        assertThat(content.size()).isEqualTo(3);
+        assertThat(page.getTotalElements()).isEqualTo(5);
+        assertThat(page.getNumber()).isEqualTo(0);
+        assertThat(page.getTotalPages()).isEqualTo(2);
+        assertThat(page.isFirst()).isTrue();
+        assertThat(page.hasNext()).isTrue();
+    }
+
+    /*@Test
+    public void slice(){
+        // given
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 10));
+        memberRepository.save(new Member("member3", 10));
+        memberRepository.save(new Member("member4", 10));
+        memberRepository.save(new Member("member5", 10));
+
+        int age = 10;
+        // 0 페이지에서 3개 가져와, Sort 정렬은 DESC/ASC 차순으로 "username" 기준 정렬
+        PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.ASC, "username"));
+
+        // when
+        Slice<Member> page = memberRepository.findByAge(age, pageRequest);
+
+        // then
+        List<Member> content = page.getContent();
+        //long totalElements = page.getTotalElements();
+        for (Member member : content) {
+            System.out.println("member : "+member);
+        }
+        //System.out.println("total : "+totalElements);
+
+        assertThat(content.size()).isEqualTo(3);
+        //assertThat(page.getTotalElements()).isEqualTo(5);
+        assertThat(page.getNumber()).isEqualTo(0);
+        //assertThat(page.getTotalPages()).isEqualTo(2);
+        assertThat(page.isFirst()).isTrue();
+        assertThat(page.hasNext()).isTrue();
+    }*/
 }

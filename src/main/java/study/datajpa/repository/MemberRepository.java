@@ -1,5 +1,8 @@
 package study.datajpa.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -55,4 +58,15 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     // Optional 을 주면 값이 없어도 null 이 아닌 Optional.empty 을 내보냄
     Optional<Member> findOptionalByUsername(String username);
+
+    // spring jpa 에서는 Pageable 만 넘기면 paging 기능을 사용할 수 있음
+
+    @Query(value = "select m from Member m left join m.team t",
+            countQuery = "select count(m) from Member m")
+    Page<Member> findByAge(int age, Pageable pageble);
+    // page 보다 slice 는 반환성이 훨신 빠르고 조회 성능이 좋음
+    // 대신 totalCount 조회가 안됨
+    //Slice<Member> findByAge(int age, Pageable pageble);
+    // List 로도 페이징을 사용할 수 있지만 다른 paging 기능은 사용 못함
+    //List<Member> findByAge(int age, Pageable pageble);
 }
