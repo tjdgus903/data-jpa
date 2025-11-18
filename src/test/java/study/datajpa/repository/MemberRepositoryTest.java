@@ -260,4 +260,47 @@ class MemberRepositoryTest {
         // then
         assertThat(resultCount).isEqualTo(3);
     }
+
+    @Test
+    public void findMemberLazy(){
+        // given
+        //member1 -> teamA
+        //member2 -> teamB
+
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 10, teamB);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+
+        // when
+        // N + 1 문제 - function을 수행 시 연관되어있는 객체들을 불러들이기 위해 추가적인 조회를 하는 것
+        // (네트워크를 타기 때문에 N이 많아질수록 성능 이슈가 생김)
+        // 1. Member 만 조회
+        // List<Member> members = memberRepository.findAll();
+        // fetch join 은 연관되어있는 데이터를 join 을 통해 다 긁어오는 것
+        // join 해서 데이터를 한번에 가져오기 때문에 네트워크를 여러번 탈 필요없이 가져옴
+        // List<Member> members = memberRepository.findMemberFetchJoin();
+        // EntityGraph 는 fetch join
+        // List<Member> members = memberRepository.findAll();
+        // EntityGraph 는 파라미터를 통해 where 문 조건을 추가할 수 있음
+        List<Member> members = memberRepository.findEntityGraphByUsername("member1");
+
+        for (Member member : members) {
+            // 2. 최초 member 를 조회할 때 member의 Team 은 가짜 객체만 가지고 옴
+            // LAZY로 ManyToOne 으로 연결되어있으면 Team 데이터를 조회하기 전에는 가짜 Proxy 객체를 불러드림
+            System.out.println("member = "+member.getUsername());
+            // 3. 해당 데이터와 연관된 데이터(member 에서 Team 객체)가 애플리케이션 로딩이 안되어있기 때문에
+            // 조회 시에는 select 쿼리를 통해 해당 데이터를 조회하여 가지고 옴
+            System.out.println("member.teamClass = "+member.getTeam().getClass());
+            // 4. 그리고 조회된 데이터를 뿌려줌
+            System.out.println("member.team = "+member.getTeam().getName());
+        }
+    }
 }
