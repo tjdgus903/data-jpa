@@ -303,4 +303,31 @@ class MemberRepositoryTest {
             System.out.println("member.team = "+member.getTeam().getName());
         }
     }
+
+    @Test
+    public void queryHint(){
+        // given
+        Member member1 = memberRepository.save((new Member("member1", 10)));
+        em.flush();
+        em.clear();
+
+        // when
+        // QueryHint 로 변수를 선언하면 읽기 용으로 쓰이게 됨(성능 최적화 용이지 자주 쓰지는 않음)
+        Member findMember = memberRepository.findReadOnlyByUsername("member1");
+        findMember.setUsername("member2");
+
+        em.flush();
+    }
+
+    @Test
+    public void lock(){
+        // given
+        Member member1 = memberRepository.save((new Member("member1", 10)));
+        em.flush();
+        em.clear();
+
+        // when
+        // for update
+        List<Member> result = memberRepository.findLockByUsername("member1");
+    }
 }
