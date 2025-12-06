@@ -25,7 +25,7 @@ import java.util.Optional;
 
 // 엔티티의 필드명이 변경되면 인터페이스에 정의한 메서드 이름도 변경해야됨
 // 그렇지 않으면 애플리케이션 시작 시점에서 오류가 발생함
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom {
 
     // Spring JPA Data 에서 메소드 이름을 분석하여 JPQL을 생성하고 실행함
     List<Member> findByUsernameAndAgeGreaterThan(String username, int age);

@@ -330,4 +330,10 @@ class MemberRepositoryTest {
         // for update
         List<Member> result = memberRepository.findLockByUsername("member1");
     }
+
+    @Test
+    public void callCustorm(){
+        List<Member> memberCustom = memberRepository.findMemberCustom();
+    }
+
 }
